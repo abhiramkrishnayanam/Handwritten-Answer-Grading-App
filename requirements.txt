@@ -1,0 +1,7 @@
+pymupdf
+pytesseract
+opencv-python-headless
+Pillow
+fuzzywuzzy
+python-Levenshtein
+streamlit
