@@ -40,15 +40,63 @@ This project provides an automated system to grade handwritten answers by compar
    A Streamlit-based web app allows users to upload the answer key and student answer PDFs, specify total marks, run the grading pipeline, view results, and download the grading report.
 
 ---
-## Execution Workflow
+# Execution Workflow with Module and Method References
 
-- PDFs are uploaded and temporarily saved.
-- Pages are converted into images with high DPI for clarity.
-- Images are preprocessed to enhance text visibility.
-- OCR extracts text from each page image.
-- Extracted texts are cleaned and compared for similarity.
-- Marks are computed based on similarity percentages.
-- Results and detailed reports are displayed and made available for download.
+## 1. PDF Upload and Temporary Storage
+**Module**: `app.py`  
+**Methods Used**:
+- `st.file_uploader()` – Uploads the Answer Key and Student PDFs.
+- `tempfile.TemporaryDirectory()` – Creates a temporary folder for storing files during the session.
+- `open().write()` – Saves the uploaded files locally for further processing.
+
+---
+
+## 2. PDF to Image Conversion
+**Module**: `pdf_to_images.py`  
+**Function Called**:
+- `render_pdf_pages_to_images(pdf_path, output_folder)`  
+  Converts each page of the PDFs into high-resolution images using the `fitz` library (PyMuPDF).
+
+---
+
+## 3. Image Preprocessing and OCR (Text Extraction)
+**Module**: `ocr_utils.py`  
+**Functions Called**:
+- `extract_text_from_images(image_folder)`  
+  Iterates over each image file.
+  - Internally calls `preprocess_image(image_path)` to convert to grayscale, apply thresholding, and denoise the image using OpenCV.
+  - Uses `pytesseract.image_to_string()` to extract text from the processed image.
+
+---
+
+## 4. Text Cleaning and Similarity Calculation
+**Module**: `grading_pipeline.py`  
+**Functions Called**:
+- `preprocess_text(text)`  
+  Normalizes the text by removing whitespace, punctuation, and converting it to lowercase.
+- `fuzz.partial_ratio()` from the `fuzzywuzzy` library  
+  Calculates the similarity percentage between cleaned answer key text and student text.
+
+---
+
+## 5. Marks Calculation and Report Generation
+**Module**: `grading_pipeline.py`  
+**Functions Called**:
+- `grade_answers(answer_key_folder, student_folder, total_marks)`  
+  Computes similarity scores, calculates marks per question, and totals the score.  
+  Generates a `grading_report.csv` file for all results.
+- `save_texts_to_file(texts, filename)`  
+  Saves the raw OCR outputs into text files for the answer key and student responses.
+
+---
+
+## 6. Streamlit UI: Display and Download Reports
+**Module**: `app.py`  
+**Methods Used**:
+- `st.success()` – Displays the total marks obtained.
+- `st.download_button()` – Allows downloading the CSV report.
+- `st.expander()` – Lets users view the full extracted text for both answer key and student responses.
+
 
 ---
 
